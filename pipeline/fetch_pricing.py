@@ -112,6 +112,9 @@ def flatten(item: dict) -> list:
     return rows
 
 
+HOURS_IN_TERM = {"1 Year": 8760, "3 Years": 26280, "5 Years": 43800}
+
+
 def build_currency_data(currency: str) -> dict:
     rows, seen = [], set()
     for region in REGIONS:
@@ -125,16 +128,23 @@ def build_currency_data(currency: str) -> dict:
                     if ptype == "Consumption":
                         flat = flatten(item)
                     else:
+                        # Reservation meters from the retail API are quoted as the
+                        # TOTAL over the whole term; convert to a per-hour rate so
+                        # they compare directly with PAYG / SavingsPlan hourly.
+                        term = (item.get("reservationTerm") or "")
+                        hours = HOURS_IN_TERM.get(term)
+                        total = float(item["unitPrice"])
+                        hourly = round(total / hours, 6) if hours else total
                         flat = [{
                             "armSkuName": item.get("armSkuName") or item.get("skuName"),
                             "armRegionName": item["armRegionName"],
                             "meterName": item.get("meterName"),
                             "productName": item.get("productName"),
                             "priceType": "Reservation",
-                            "reservationTerm": (item.get("reservationTerm") or ""),
+                            "reservationTerm": term,
                             "savingsPlanTerm": "",
-                            "unitPrice": round(float(item["unitPrice"]), 6),
-                            "unitOfMeasure": item.get("unitOfMeasure"),
+                            "unitPrice": hourly,
+                            "unitOfMeasure": "1 Hour",
                             "effectiveStartDate": item.get("effectiveStartDate", ""),
                         }]
                     for r in flat:

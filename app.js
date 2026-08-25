@@ -11,6 +11,8 @@ const state = {
   currency: "MYR",
   region: null,
   regions: [],
+  bySku: new Map(),   // sku -> (ptype|term) -> {region -> meter}
+  specMap: new Map(),
 };
 
 const $ = (id) => document.getElementById(id);
@@ -47,7 +49,7 @@ async function loadData() {
   state.regions = pricing.meta.regions;
   populateRegionSelect();
 
-  const specMap = new Map(specs.rows.map((s) => [s.armSkuName, s]));
+  state.specMap = new Map(specs.rows.map((s) => [s.armSkuName, s]));
 
   // index: sku|region|ptype|term -> {unitPrice, category, productName} (cheapest meter)
   const priceIdx = new Map();
@@ -60,31 +62,37 @@ async function loadData() {
   }
 
   // group by sku so region prices can be compared
-  const bySku = new Map();
+  state.bySku = new Map();
   for (const [key] of priceIdx) {
     const [sku, region, ptype, term] = key.split("|");
-    if (!bySku.has(sku)) bySku.set(sku, new Map());           // (ptype|term) -> {region->price}
-    const inner = bySku.get(sku);
+    if (!state.bySku.has(sku)) state.bySku.set(sku, new Map());  // (ptype|term) -> {region->meter}
+    const inner = state.bySku.get(sku);
     const pk = `${ptype}|${term}`;
     if (!inner.has(pk)) inner.set(pk, new Map());
     const m = priceIdx.get(key);
     inner.get(pk).set(region, m);
   }
 
-  // build row set for the current ptype/term across all regions
+  rebuildRows();
+  applyFilters();
+}
+
+/* Build the visible row set for the currently-selected price type across all regions */
+function rebuildRows() {
   const __pt = $("priceType").value.split("|");
   const ptype = __pt[0], term = __pt[1] || "";
   const pk = `${ptype}|${term}`;
-  for (const [sku, inner] of bySku) {
+  state.rows = [];
+  for (const [sku, inner] of state.bySku) {
     const regionMap = inner.get(pk);
     if (!regionMap) continue;
-    const sp = specMap.get(sku) || null;
+    const sp = state.specMap.get(sku) || null;
     let cheapest = null, cheapestRegion = null;
     for (const [arm, m] of regionMap) {
       if (!cheapest || m.unitPrice < cheapest) { cheapest = m.unitPrice; cheapestRegion = arm; }
     }
     const example = regionMap.values().next().value;
-    state.rows.push({
+    const row = {
       armSkuName: sku,
       series: sp ? sp.series : "",
       vCPUs: sp ? sp.vCPUs : null,
@@ -95,13 +103,12 @@ async function loadData() {
       regionPrice: {},
       cheapest: cheapest ?? null,
       cheapestRegion: cheapestRegion ?? null,
-    });
-    for (const [arm, m] of regionMap) state.rows[state.rows.length - 1].regionPrice[arm] = m.unitPrice;
+    };
+    for (const [arm, m] of regionMap) row.regionPrice[arm] = m.unitPrice;
+    state.rows.push(row);
   }
-
   buildSeriesList();
   resetRows();   // sets sel/save from current region
-  applyFilters();
 }
 
 /* Recompute the selected-region column + save% for current state.region */
@@ -202,9 +209,14 @@ $("search").addEventListener("input", () => {
   clearTimeout(deb);
   deb = setTimeout(applyFilters, 180);
 });
-for (const id of ["category", "series", "priceType", "minCpu", "minRam"]) {
+for (const id of ["category", "series", "minCpu", "minRam"]) {
   $(id).addEventListener("change", () => { state.page = 0; applyFilters(); });
 }
+$("priceType").addEventListener("change", () => {
+  state.page = 0;
+  rebuildRows();     // row set depends on the price type
+  applyFilters();
+});
 $("region").addEventListener("change", (e) => {
   state.region = e.target.value;
   state.page = 0;

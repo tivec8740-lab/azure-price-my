@@ -15,6 +15,7 @@ Live: https://tivec8740-lab.github.io/azure-price-my/
 ## Data
 - Source: [Azure Retail Prices API](https://prices.azure.com/api/retail/prices) (public, unauthenticated), `api-version=2023-01-01-preview`
 - One file per currency: `data/pricing_myr.json`, `data/pricing_usd.json` (31k price points each)
+- Reserved-Instance rates are displayed as the **amortized per-hour** price (API quotes the multi-year total; we divide by 8760/26280/43800 hours). Savings Plans are already per-hour.
 - Refreshed **nightly** from a private pipeline; `data/last_updated.json` carries the stamp.
 - Specs seeded from Microsoft Learn documentation (legacy series without current docs show prices only)
 - Excluded: Windows, Basic tier, Spot, Low-priority, Dev/Test, Dedicated Host
