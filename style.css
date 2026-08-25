@@ -1,0 +1,48 @@
+:root {
+  --bg: #0f1420; --card: #171e2e; --text: #e6ebf5; --muted: #8b96ad;
+  --accent: #2f81f7; --good: #3fb950; --bad: #f85149; --border: #2a3245;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px/1.5 -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg); color: var(--text); }
+header { padding: 1.4rem 1rem 0.6rem; text-align: center; }
+h1 { margin: 0; font-size: 1.55rem; }
+.tagline { color: var(--muted); margin: 0.3rem 0 0; }
+.updated { font-size: 0.82rem; color: var(--muted); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
+  padding: 0.6rem 1rem; position: sticky; top: 0; background: var(--bg);
+  z-index: 5; border-bottom: 1px solid var(--border); padding-bottom: 0.7rem; }
+.controls input[type=search] { min-width: 210px; flex: 1; max-width: 320px; }
+input, select {
+  background: var(--card); color: var(--text); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.45rem 0.6rem; font-size: 0.92rem;
+}
+.range label { color: var(--muted); font-size: 0.88rem; margin-right: 0.6rem; }
+
+main { max-width: 1080px; margin: 0 auto; padding: 0.6rem 0.6rem 2rem; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { padding: 0.42rem 0.55rem; text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+thead th { position: sticky; top: 52px; background: var(--card); cursor: pointer;
+  border-bottom: 2px solid var(--border); user-select: none; }
+tbody tr { border-bottom: 1px solid var(--border); }
+tbody tr:hover { background: rgba(47,129,247,.08); }
+td.sku code { background: none; color: var(--accent); font-weight: 600; }
+.muted { color: var(--muted); }
+.diff-neg { color: var(--good); } .diff-pos { color: var(--bad); }
+.badge { font-size: 0.72rem; color: var(--muted); margin-left: 0.35rem; }
+
+.pager { display: flex; gap: 0.8rem; align-items: center; justify-content: center;
+  padding: 0.8rem; color: var(--muted); }
+button { background: var(--card); border: 1px solid var(--border); color: var(--text);
+  border-radius: 8px; padding: 0.4rem 0.9rem; cursor: pointer; }
+button:disabled { opacity: 0.4; cursor: default; }
+
+footer { text-align: center; color: var(--muted); font-size: 0.78rem;
+  padding: 1rem 1.4rem 2rem; border-top: 1px solid var(--border); }
+footer a { color: var(--accent); }
+@media (max-width: 720px) {
+  th, td { padding: 0.35rem 0.3rem; font-size: 0.8rem; }
+  .controls input[type=search] { max-width: none; }
+}

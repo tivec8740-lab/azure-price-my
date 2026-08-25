@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure Price MY — VM & Database Prices for Malaysia & Singapore (MYR)</title>
+<meta name="description" content="Compare Azure Virtual Machine and Flexible Database prices in MYR: Southeast Asia vs Malaysia West, Linux Standard tier, Pay-as-you-go, Reserved Instances and Savings Plans. Updated daily from Microsoft's public Azure Retail Prices API.">
+<link rel="canonical" href="https://tivec8740-lab.github.io/azure-price-my/">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>🇲🇾 Azure Price MY</h1>
+  <p class="tagline">Azure VM &amp; database pricing for <strong>Southeast Asia</strong> vs <strong>Malaysia West</strong> — in Ringgit.</p>
+  <p id="updated" class="updated">loading…</p>
+</header>
+
+<section class="controls">
+  <input id="search" type="search" placeholder="Search SKU… e.g. D2s_v5" autocomplete="off">
+  <select id="category">
+    <option value="Compute (VM)">Virtual Machines</option>
+    <option value="Database">Databases (Flexible)</option>
+    <option value="all">All</option>
+  </select>
+  <select id="series"><option value="">All series</option></select>
+  <select id="priceType">
+    <option value="Consumption">Pay-as-you-go</option>
+    <option value="Reservation|1 Year">1-Yr Reserved</option>
+    <option value="Reservation|3 Years">3-Yr Reserved</option>
+    <option value="SavingsPlan|1 Year">1-Yr Savings Plan</option>
+    <option value="SavingsPlan|3 Years">3-Yr Savings Plan</option>
+  </select>
+  <div class="range">
+    <label>vCPU ≥ <input id="minCpu" type="number" min="0" placeholder="0" style="width:4.5em"></label>
+    <label>RAM ≥ <input id="minRam" type="number" min="0" placeholder="0" style="width:4.5em"> GB</label>
+  </div>
+</section>
+
+<main>
+<table id="tbl">
+  <thead>
+    <tr>
+      <th data-sort="armSkuName">SKU ▾</th>
+      <th data-sort="vCPUs">vCPU</th>
+      <th data-sort="memoryGB">RAM</th>
+      <th data-sort="tempDiskGB">Temp&nbsp;disk</th>
+      <th data-sort="sea">SEA /hr</th>
+      <th data-sort="myw">MYW /hr</th>
+      <th data-sort="diff">MYW vs SEA</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"><tr><td colspan="7">Loading data…</td></tr></tbody>
+</table>
+<div class="pager">
+  <button id="prev">‹ Prev</button>
+  <span id="pageInfo"></span>
+  <button id="next">Next ›</button>
+  <span id="count"></span>
+</div>
+</main>
+
+<footer>
+  <p>Data: <a href="https://prices.azure.com">Azure Retail Prices API</a> (public, unofficial) · Currency: MYR · OS scope: Linux/Ubuntu, Standard tier only.
+  Excluded: Windows, Basic, Spot, Low-priority, Dev/Test. Prices refresh nightly and may differ from your Azure invoice — always confirm in the Azure portal.</p>
+  <p>Not affiliated with Microsoft or Azure. Built by <a href="https://github.com/tivec8740-lab">@tivec8740-lab</a>.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
