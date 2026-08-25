@@ -11,6 +11,7 @@ const state = {
   currency: "MYR",
   region: null,
   regions: [],
+  period: "hour",   // "hour" | "month"
   bySku: new Map(),   // sku -> (ptype|term) -> {region -> meter}
   specMap: new Map(),
 };
@@ -44,7 +45,19 @@ const fmt = (n, dp = 4) =>
 const fmtRegion = (r) =>
   r.sel === null || r.sel === undefined
     ? '<span class="muted" title="Not offered in this region by Azure">Not offered</span>'
-    : fmt(r.sel);
+    : fmtPrice(r.sel);
+
+const HOURS_PER_MONTH = 730;   // Azure billing month
+// Format a price for the active period. Per-hour keeps 4dp clarity; monthly is a big number => 2dp + thousands separators.
+const fmtPrice = (n) => {
+  if (n === null || n === undefined) return '<span class="muted">—</span>';
+  const scaled = state.period === "month" ? n * HOURS_PER_MONTH : n;
+  if (state.period === "month") {
+    const s = scaled.toLocaleString("en-US", { maximumFractionDigits: 0 });
+    return s;
+  }
+  return Number(scaled).toFixed(4).replace(/\.?0+$/, "");
+};
 
 /* ---------- data ---------- */
 async function loadData() {
@@ -123,8 +136,9 @@ function rebuildRows() {
 /* Recompute the selected-region column + save% for current state.region */
 function resetRows() {
   const region = state.region;
-  $("thSel").textContent =
-    region ? `${regionShort(region)} /hr` : "Region /hr";
+  const unit = state.period === "month" ? "/mo" : "/hr";
+  $("thSel").textContent = region ? `${regionShort(region)} ${unit}` : `Region ${unit}`;
+  $("thCheap").textContent = `Best ${unit}`;
   for (const r of state.rows) {
     const sel = r.regionPrice[region];
     r.sel = sel ?? null;
@@ -192,7 +206,7 @@ function render() {
         <td>${r.tempDiskGB ?? '<span class="muted">None</span>'}</td>
         <td>${fmtRegion(r)}</td>
         <td>${bestCell}</td>
-        <td>${fmt(r.cheapest)}</td>
+        <td>${fmtPrice(r.cheapest)}</td>
         <td>${saveCell}</td>
       </tr>`;
     })
@@ -224,6 +238,11 @@ for (const id of ["category", "series", "minCpu", "minRam"]) {
 $("priceType").addEventListener("change", () => {
   state.page = 0;
   rebuildRows();     // row set depends on the price type
+  applyFilters();
+});
+$("period").addEventListener("change", (e) => {
+  state.period = e.target.value;
+  resetRows();       // re-label headers + recompute (prices scale in fmtPrice)
   applyFilters();
 });
 $("region").addEventListener("change", (e) => {

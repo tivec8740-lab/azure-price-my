@@ -9,9 +9,10 @@ Live: https://tivec8740-lab.github.io/azure-price-my/
 - 9 APAC regions: Southeast Asia (SG) · Malaysia West · East Asia (HK) · Japan East/West · Korea Central · Central/South India · Australia East
 - 8 currencies: MYR, USD, SGD, AUD, EUR, GBP, INR, JPY
 - 5 price points: PAYG, 1Y/3Y Reserved Instances, 1Y/3Y Savings Plans
+- **Per-hour or per-month** view (monthly = hourly × 730), toggle in the controls
 - Pick your region → see the market-cheapest region, its price, and the **% you could save** vs your region
 - Specs (vCPU / RAM / temp disk) joined per SKU where documented
-- ☕ Optional PayPal donation link in the footer (set your handle in `index.html`)
+- ☕ Optional tip : PayPal · Wise · GitHub Sponsors (footer links, no keys in repo)
 
 ## Data
 - Source: [Azure Retail Prices API](https://prices.azure.com/api/retail/prices) (public, unauthenticated), `api-version=2023-01-01-preview`
