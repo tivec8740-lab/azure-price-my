@@ -65,6 +65,13 @@ def main() -> int:
 
     rows = read_sheet(z, target)
     header, body = rows[0], rows[1:]
+
+    # Rename aliases: Azure docs renamed some sizes but the pricing API keeps
+    # the legacy armSkuName. Alias maps priced-SKU -> documented-SKU hardware.
+    ALIASES = {
+        "Standard_B1ls": "Standard_B1ls2",  # bv1-series rename in Learn docs
+    }
+
     specs = []
     for r in body:
         d = dict(zip(header, r + [""] * (len(header) - len(r))))
@@ -84,6 +91,14 @@ def main() -> int:
             })
         except (ValueError, KeyError) as e:
             print(f"  skip {d.get('armSkuName', '?')}: {e}")
+
+    # Emit alias rows (priced name inherits documented hardware)
+    by_name = {s["armSkuName"]: s for s in specs}
+    for priced, documented in ALIASES.items():
+        if priced not in by_name and documented in by_name:
+            clone = dict(by_name[documented])
+            clone["armSkuName"] = priced
+            specs.append(clone)
 
     now = datetime.now(MYT)
     out = {
