@@ -72,6 +72,19 @@ def main() -> int:
         "Standard_B1ls": "Standard_B1ls2",  # bv1-series rename in Learn docs
     }
 
+    # Manually verified specs for series missing from the seed scrape.
+    # Source: Microsoft Learn size pages (transcribed verbatim).
+    MANUAL_SPECS = {
+        # av2-series (learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/av2-series)
+        "Standard_A1_v2":  {"series": "av2-series", "vCPUs": 1, "memoryGB": 2,  "tempDiskGB": 10, "premiumStorage": False, "maxDataDisks": 2},
+        "Standard_A2_v2":  {"series": "av2-series", "vCPUs": 2, "memoryGB": 4,  "tempDiskGB": 20, "premiumStorage": False, "maxDataDisks": 4},
+        "Standard_A4_v2":  {"series": "av2-series", "vCPUs": 4, "memoryGB": 8,  "tempDiskGB": 40, "premiumStorage": False, "maxDataDisks": 8},
+        "Standard_A8_v2":  {"series": "av2-series", "vCPUs": 8, "memoryGB": 16, "tempDiskGB": 80, "premiumStorage": False, "maxDataDisks": 16},
+        "Standard_A2m_v2": {"series": "av2-series", "vCPUs": 2, "memoryGB": 16, "tempDiskGB": 20, "premiumStorage": False, "maxDataDisks": 4},
+        "Standard_A4m_v2": {"series": "av2-series", "vCPUs": 4, "memoryGB": 32, "tempDiskGB": 40, "premiumStorage": False, "maxDataDisks": 8},
+        "Standard_A8m_v2": {"series": "av2-series", "vCPUs": 8, "memoryGB": 64, "tempDiskGB": 80, "premiumStorage": False, "maxDataDisks": 16},
+    }
+
     specs = []
     for r in body:
         d = dict(zip(header, r + [""] * (len(header) - len(r))))
@@ -99,6 +112,17 @@ def main() -> int:
             clone = dict(by_name[documented])
             clone["armSkuName"] = priced
             specs.append(clone)
+
+    # Merge manual specs for SKUs the seed lacks
+    added = 0
+    by_name = {s["armSkuName"] for s in specs}
+    for sku, spec in MANUAL_SPECS.items():
+        if sku not in by_name:
+            entry = {"armSkuName": sku, **spec}
+            specs.append(entry)
+            added += 1
+    if added:
+        print(f"  + {added} manual specs merged")
 
     now = datetime.now(MYT)
     out = {
