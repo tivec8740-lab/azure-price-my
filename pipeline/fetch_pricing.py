@@ -25,9 +25,13 @@ REGIONS = [
     "malaysiawest",    # Malaysia
     "eastasia",        # Hong Kong
     "japaneast",       # Tokyo
+    "japanwest",       # Osaka
+    "koreacentral",    # Seoul
+    "centralindia",    # Pune
+    "southindia",      # Chennai
     "australiaeast",   # Sydney
 ]
-CURRENCIES = ["MYR", "USD"]   # add e.g. "SGD" anytime
+CURRENCIES = ["MYR", "USD", "SGD", "AUD", "EUR", "GBP", "INR", "JPY"]
 MYT = timezone(timedelta(hours=8))
 
 

@@ -25,6 +25,12 @@
   <select id="currency">
     <option value="MYR">RM (MYR)</option>
     <option value="USD">$ (USD)</option>
+    <option value="SGD">S$ (SGD)</option>
+    <option value="AUD">A$ (AUD)</option>
+    <option value="EUR">€ (EUR)</option>
+    <option value="GBP">£ (GBP)</option>
+    <option value="INR">₹ (INR)</option>
+    <option value="JPY">¥ (JPY)</option>
   </select>
   <select id="region"></select>
   <select id="series"><option value="">All series</option></select>
@@ -66,8 +72,9 @@
 </main>
 
 <footer>
+  <p><a class="donate" href="https://paypal.me/YOURPAYPALHANDLE" target="_blank" rel="noopener">☕ Enjoy the tool? Buy me a coffee</a> — optional, keeps the data free.</p>
   <p>Data: <a href="https://prices.azure.com">Azure Retail Prices API</a> (public, unofficial) · Currency + region selectable · OS: Linux/Ubuntu, Standard tier only.
-  Excluded: Windows, Basic, Spot, Low-priority, Dev/Test. Prices refresh nightly and may differ from your Azure invoice — always confirm in the Azure portal.</p>
+  Excluded: Windows, Basic, Spot, Low-priority, Dev/Test. Reserved rates shown per hour (API quotes the multi-year total). Prices refresh nightly and may differ from your Azure invoice — always confirm in the Azure portal.</p>
   <p>Not affiliated with Microsoft or Azure. Built by <a href="https://github.com/tivec8740-lab">@tivec8740-lab</a>.</p>
 </footer>
 

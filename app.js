@@ -23,13 +23,18 @@ const REGION_LABELS = {
   malaysiawest: "Malaysia West",
   eastasia: "East Asia (HK)",
   japaneast: "Japan East (Tokyo)",
+  japanwest: "Japan West (Osaka)",
+  koreacentral: "Korea Central (Seoul)",
+  centralindia: "Central India (Pune)",
+  southindia: "South India (Chennai)",
   australiaeast: "Australia East (SYD)",
 };
 const regionShort = (arm) => {
   const SHORT = {
     southeastasia: "SG", malaysiawest: "MYW", eastasia: "HK",
-    japaneast: "Tokyo", australiaeast: "SYD", centralindia: "IN",
-    southindia: "IN-S", koreacentral: "KR", westeurope: "EU", eastus: "US-E",
+    japaneast: "Tokyo", japanwest: "Osaka", koreacentral: "KR",
+    centralindia: "Pune", southindia: "Chennai", australiaeast: "SYD",
+    westeurope: "EU", eastus: "US-E",
   };
   return SHORT[arm] || arm.slice(0, 3).toUpperCase();
 };
