@@ -41,6 +41,10 @@ const regionShort = (arm) => {
 
 const fmt = (n, dp = 4) =>
   n === null || n === undefined ? '<span class="muted">—</span>' : Number(n).toFixed(dp);
+const fmtRegion = (r) =>
+  r.sel === null || r.sel === undefined
+    ? '<span class="muted" title="Not offered in this region by Azure">Not offered</span>'
+    : fmt(r.sel);
 
 /* ---------- data ---------- */
 async function loadData() {
@@ -186,7 +190,7 @@ function render() {
         <td>${r.vCPUs ?? '<span class="muted">—</span>'}</td>
         <td>${r.memoryGB ?? '<span class="muted">—</span>'}</td>
         <td>${r.tempDiskGB ?? '<span class="muted">None</span>'}</td>
-        <td>${fmt(r.sel)}</td>
+        <td>${fmtRegion(r)}</td>
         <td>${bestCell}</td>
         <td>${fmt(r.cheapest)}</td>
         <td>${saveCell}</td>
