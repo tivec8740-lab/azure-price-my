@@ -168,7 +168,8 @@ function applyFilters() {
       (!ser || r.series === ser) &&
       (!q || r.armSkuName.toLowerCase().includes(q)) &&
       (r.vCPUs === null || r.vCPUs >= minCpu) &&
-      (r.memoryGB === null || r.memoryGB >= minRam)
+      (r.memoryGB === null || r.memoryGB >= minRam) &&
+      (!$("onlySpec").checked || r.vCPUs !== null)
   );
 
   const k = state.sortKey;
@@ -235,6 +236,7 @@ $("search").addEventListener("input", () => {
 for (const id of ["category", "series", "minCpu", "minRam"]) {
   $(id).addEventListener("change", () => { state.page = 0; applyFilters(); });
 }
+$("onlySpec").addEventListener("change", () => { state.page = 0; applyFilters(); });
 $("priceType").addEventListener("change", () => {
   state.page = 0;
   rebuildRows();     // row set depends on the price type

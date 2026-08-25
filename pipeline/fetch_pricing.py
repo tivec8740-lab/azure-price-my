@@ -61,7 +61,8 @@ def is_excluded(item: dict) -> bool:
     blob = " ".join(str(item.get(k, "")) for k in ("productName", "skuName", "meterName")).lower()
     return any(x in blob for x in (
         "windows", "low priority", "spot", "dev/test", "devtest",
-        "dedicated host", "cloudservices", "virtual desktop",
+        "dedicated host", "dedicatedhost",  # per-physical-host pricing, not per-VM
+        "cloudservices", "virtual desktop",
         "basic ", "basic_",  # Basic A-series tier — spec says Standard only
     ))
 

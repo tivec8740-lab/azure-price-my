@@ -19,6 +19,10 @@ input, select {
   border-radius: 8px; padding: 0.45rem 0.6rem; font-size: 0.92rem;
 }
 .range label { color: var(--muted); font-size: 0.88rem; margin-right: 0.6rem; }
+.toggle { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted);
+  font-size: 0.88rem; background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.35rem 0.6rem; cursor: pointer; }
+.toggle input { accent-color: var(--accent); }
 
 main { max-width: 1080px; margin: 0 auto; padding: 0.6rem 0.6rem 2rem; }
 table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
