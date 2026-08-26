@@ -10,6 +10,11 @@ h1 { margin: 0; font-size: 1.55rem; }
 .tagline { color: var(--muted); margin: 0.3rem 0 0; }
 .updated { font-size: 0.82rem; color: var(--muted); }
 
+/* SEO landing copy (indexed by search engines) */
+.landing { max-width: 820px; margin: 0.4rem auto 0; padding: 0.4rem 1rem 0.2rem; text-align: left; }
+.landing h2 { font-size: 1.05rem; margin: 0 0 0.3rem; color: var(--accent); }
+.landing p { font-size: 0.9rem; line-height: 1.55; color: var(--muted); margin: 0.25rem 0; }
+
 .controls { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
   padding: 0.6rem 1rem; position: sticky; top: 0; background: var(--bg);
   z-index: 5; border-bottom: 1px solid var(--border); padding-bottom: 0.7rem; }

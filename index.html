@@ -3,10 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Azure Price MY — VM & Database Prices for Asia (MYR/USD)</title>
-<meta name="description" content="Compare Azure Virtual Machine and Flexible Database prices across Asia in MYR and USD. Pick a region and see the cheapest market price vs your region, Linux Standard tier, Pay-as-you-go, Reserved Instances and Savings Plans. Updated daily from Microsoft's public Azure Retail Prices API.">
+<title>Azure VM Price Malaysia & Asia (MYR) — Compare Azure VM & Database Prices | Azure Price MY</title>
+<meta name="description" content="Compare Azure Virtual Machine and Flexible Database prices across Malaysia (Malaysia West, Southeast Asia) and all APAC regions in MYR, USD and more. See PAYG, Reserved Instance and Savings Plan rates per hour or month, and find the cheapest Azure region. Live prices from the Azure Retail Prices API, refreshed daily.">
+<meta name="keywords" content="azure vm price malaysia, azure pricing malaysia west, azure southeast asia price, azure VM cost comparison, azure myr price, azure d series price, azure b series price">
+<meta name="robots" content="index, follow">
 <link rel="canonical" href="https://tivec8740-lab.github.io/azure-price-my/">
+
+<!-- OpenGraph / social sharing -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Azure Price MY — Compare Azure VM & Database Prices Across Asia (MYR)">
+<meta property="og:description" content="Find the cheapest Azure region for any VM or database SKU. Southeast Asia vs Malaysia West vs all APAC in MYR, USD, SGD and more. Live prices daily.">
+<meta property="og:url" content="https://tivec8740-lab.github.io/azure-price-my/">
+<meta property="og:site_name" content="Azure Price MY">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Azure Price MY — Compare Azure VM & Database Prices Across Asia">
+<meta name="twitter:description" content="Find the cheapest Azure region for any VM/database SKU across Asia, in MYR & more. Live prices refreshed daily.">
+<meta name="theme-color" content="#0f1420">
+
 <link rel="stylesheet" href="style.css">
+
+<!-- Structured data for search engines (WebApp + dataset) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Azure Price MY",
+  "url": "https://tivec8740-lab.github.io/azure-price-my/",
+  "applicationCategory": "FinanceApplication",
+  "description": "Compare Azure Virtual Machine and database prices across APAC regions in multiple currencies (MYR, USD, SGD, AUD, EUR, GBP, INR, JPY). Find the cheapest region, PAYG vs Reserved vs Savings Plan.",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "MYR"},
+  "isAccessibleForFree": true
+}
+</script>
 </head>
 <body>
 <header>
@@ -14,6 +42,12 @@
   <p class="tagline">Azure VM &amp; database pricing across Asia — compare your region vs the market cheapest.</p>
   <p id="updated" class="updated">loading…</p>
 </header>
+
+<section class="landing">
+  <h2>Azure VM &amp; Database prices for Malaysia, Singapore &amp; all Asia</h2>
+  <p>See what Azure Virtual Machines and Azure Database for PostgreSQL/MySQL Flexible Server actually cost across <strong>Malaysia West</strong>, <strong>Southeast Asia (Singapore)</strong>, East Asia, Japan, Korea, India and Australia — in <strong>MYR</strong>, USD, SGD, AUD, EUR, GBP, INR and JPY.</p>
+  <p>Pick your region and a VM size (e.g. <em>Standard_D2s_v5</em>, <em>Standard_B1ls</em>) to see its price per hour or per month across Pay-as-you-go, 1-year &amp; 3-year Reserved Instances, and Savings Plans. The <strong>Market best</strong> column highlights the cheapest region and how much you could save by moving. Prices come from Microsoft's public Azure Retail Prices API and refresh nightly — so you see newer SKUs before the Azure portal calculator catches up.</p>
+</section>
 
 <section class="controls">
   <input id="search" type="search" placeholder="Search SKU… e.g. D2s_v5" autocomplete="off">
