@@ -40,6 +40,10 @@ const regionShort = (arm) => {
   return SHORT[arm] || arm.slice(0, 3).toUpperCase();
 };
 
+const CURRENCY_SYMBOLS = {
+  MYR: "RM", USD: "$", SGD: "S$", AUD: "A$", EUR: "€", GBP: "£", INR: "₹", JPY: "¥",
+};
+
 const fmt = (n, dp = 4) =>
   n === null || n === undefined ? '<span class="muted">—</span>' : Number(n).toFixed(dp);
 const fmtRegion = (r) =>
@@ -48,15 +52,16 @@ const fmtRegion = (r) =>
     : fmtPrice(r.sel);
 
 const HOURS_PER_MONTH = 730;   // Azure billing month
-// Format a price for the active period. Per-hour keeps 4dp clarity; monthly is a big number => 2dp + thousands separators.
+// Format a price for the active period + currency.
+// Hourly keeps 4dp; monthly is a big number => whole number w/ thousands separators.
 const fmtPrice = (n) => {
   if (n === null || n === undefined) return '<span class="muted">—</span>';
+  const sym = CURRENCY_SYMBOLS[state.currency] || state.currency + " ";
   const scaled = state.period === "month" ? n * HOURS_PER_MONTH : n;
   if (state.period === "month") {
-    const s = scaled.toLocaleString("en-US", { maximumFractionDigits: 0 });
-    return s;
+    return sym + Math.round(scaled).toLocaleString("en-US");
   }
-  return Number(scaled).toFixed(4).replace(/\.?0+$/, "");
+  return sym + Number(scaled).toFixed(4).replace(/\.?0+$/, "");
 };
 
 /* ---------- data ---------- */
@@ -137,8 +142,9 @@ function rebuildRows() {
 function resetRows() {
   const region = state.region;
   const unit = state.period === "month" ? "/mo" : "/hr";
-  $("thSel").textContent = region ? `${regionShort(region)} ${unit}` : `Region ${unit}`;
-  $("thCheap").textContent = `Best ${unit}`;
+  const sym = CURRENCY_SYMBOLS[state.currency] || state.currency;
+  $("thSel").textContent = region ? `${sym} ${regionShort(region)} ${unit}` : `Region ${unit}`;
+  $("thCheap").textContent = `Best (${sym}) ${unit}`;
   for (const r of state.rows) {
     const sel = r.regionPrice[region];
     r.sel = sel ?? null;
