@@ -66,6 +66,9 @@ const fmtPrice = (n) => {
 
 /* ---------- data ---------- */
 async function loadData() {
+  // Apply shareable URL params to the controls BEFORE fetching/rendering.
+  applyParamsFromUrl();
+
   const [pricing, specs] = await Promise.all([
     fetch(`data/pricing_${state.currency.toLowerCase()}.json`).then((r) => r.json()),
     fetch("data/specs.json").then((r) => r.json()),
@@ -100,8 +103,50 @@ async function loadData() {
     inner.get(pk).set(region, m);
   }
 
+  // Apply URL state that must happen AFTER controls are populated/loaded.
+  if (state._region) { state.region = state._region; $("region").value = state._region; }
+  if (state._period) { state.period = state._period; $("period").value = state._period; }
+  if (state._priceType) { $("priceType").value = state._priceType; }
+  if (state._sku) { $("search").value = state._sku; }
+
   rebuildRows();
   applyFilters();
+}
+
+/* Parse & stash shareable URL params (?sku=&region=&currency=&period=&priceType=) */
+function applyParamsFromUrl() {
+  const p = new URLSearchParams(location.search);
+  const c = (p.get("currency") || "MYR").toUpperCase();
+  if (["MYR","USD","SGD","AUD","EUR","GBP","INR","JPY"].includes(c)) {
+    state.currency = c;
+    $("currency").value = c;   // keep dropdown in sync with the URL/presented data
+  }
+  const r = p.get("region");
+  if (r) state._region = r;
+  const per = p.get("period");
+  if (per === "month" || per === "hour") state._period = per;
+  const pt = p.get("priceType");
+  if (pt) state._priceType = pt;
+  const sku = p.get("sku");
+  if (sku) state._sku = sku;
+}
+
+/* Build a shareable URL from current controls and update address bar (no reload) */
+function syncUrl() {
+  const p = new URLSearchParams();
+  const region = $("region").value;
+  const pt = $("priceType").value;
+  const sku = $("search").value.trim();
+  if (region) p.set("region", region);
+  p.set("currency", state.currency);
+  if (state.period) p.set("period", state.period);
+  if (pt) p.set("priceType", pt);
+  if (sku) p.set("sku", sku);
+  history.replaceState(null, "", "?" + p.toString());
+}
+function shareUrl() {
+  syncUrl();
+  return location.origin + location.pathname + "?" + new URLSearchParams(location.search).toString();
 }
 
 /* Build the visible row set for the currently-selected price type across all regions */
@@ -237,32 +282,44 @@ function buildSeriesList() {
 let deb;
 $("search").addEventListener("input", () => {
   clearTimeout(deb);
-  deb = setTimeout(applyFilters, 180);
+  deb = setTimeout(() => { applyFilters(); syncUrl(); }, 250);
 });
 for (const id of ["category", "series", "minCpu", "minRam"]) {
-  $(id).addEventListener("change", () => { state.page = 0; applyFilters(); });
+  $(id).addEventListener("change", () => { state.page = 0; applyFilters(); syncUrl(); });
 }
-$("onlySpec").addEventListener("change", () => { state.page = 0; applyFilters(); });
+$("onlySpec").addEventListener("change", () => { state.page = 0; applyFilters(); syncUrl(); });
 $("priceType").addEventListener("change", () => {
   state.page = 0;
   rebuildRows();     // row set depends on the price type
   applyFilters();
+  syncUrl();
 });
 $("period").addEventListener("change", (e) => {
   state.period = e.target.value;
   resetRows();       // re-label headers + recompute (prices scale in fmtPrice)
   applyFilters();
+  syncUrl();
 });
 $("region").addEventListener("change", (e) => {
   state.region = e.target.value;
   state.page = 0;
-  dataLoaded ? (resetRows(), applyFilters()) : null;
+  dataLoaded ? (resetRows(), applyFilters(), syncUrl()) : null;
 });
 $("currency").addEventListener("change", (e) => {
   state.currency = e.target.value;
   state.rows = [];
   state.page = 0;
-  loadData().catch(showErr);
+  loadData().catch(showErr).then(syncUrl);
+});
+$("share").addEventListener("click", async () => {
+  const url = shareUrl();
+  try {
+    await navigator.clipboard.writeText(url);
+    $("share").textContent = "✓ Copied!";
+  } catch (e) {
+    window.prompt("Copy this link:", url);
+  }
+  setTimeout(() => ($("share").textContent = "🔗 Share"), 1500);
 });
 document.querySelectorAll("th[data-sort]").forEach((th) =>
   th.addEventListener("click", () => {
