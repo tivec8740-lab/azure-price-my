@@ -142,9 +142,9 @@ function rebuildRows() {
 function resetRows() {
   const region = state.region;
   const unit = state.period === "month" ? "/mo" : "/hr";
-  const sym = CURRENCY_SYMBOLS[state.currency] || state.currency;
-  $("thSel").textContent = region ? `${sym} ${regionShort(region)} ${unit}` : `Region ${unit}`;
-  $("thCheap").textContent = `Best (${sym}) ${unit}`;
+  // Currency symbol is shown on every price cell; headers stay clean.
+  $("thSel").textContent = region ? `${regionShort(region)} ${unit}` : `Region ${unit}`;
+  $("thCheap").textContent = `Best ${unit}`;
   for (const r of state.rows) {
     const sel = r.regionPrice[region];
     r.sel = sel ?? null;
