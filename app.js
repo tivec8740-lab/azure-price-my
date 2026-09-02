@@ -321,31 +321,110 @@ $("share").addEventListener("click", async () => {
   }
   setTimeout(() => ($("share").textContent = "🔗 Share"), 1500);
 });
-// CSV Export - exports currently filtered rows
-function exportCsv() {
-  if (!state.filtered.length) { alert("No data to export"); return; }
-  const sym = CURRENCY_SYMBOLS[state.currency] || state.currency;
+// Export - handles CSV, JSON, Excel, XML with column picker
+function getSelectedColumns() {
+  const picker = document.getElementById("colPicker");
+  if (!picker) return ["sku","vcpu","ram","disk","regionPrice","marketBest","bestPrice","save"];
+  const checks = picker.querySelectorAll("input[data-col]");
+  const cols = [];
+  checks.forEach(c => { if (c.checked) cols.push(c.dataset.col); });
+  return cols.length ? cols : ["sku","vcpu","ram","disk","regionPrice","marketBest","bestPrice","save"];
+}
+function getExportData() {
+  const cols = getSelectedColumns();
   const periodLabel = state.period === "month" ? "per month" : "per hour";
   const regionLabel = state.region ? REGION_LABELS[state.region] || state.region : "Region";
-  const headers = ["SKU","Category","Series","vCPU","RAM_GB","TempDisk_GB", regionLabel + " " + periodLabel, "Market Best Region", "Best Price " + periodLabel + " (" + sym + ")", "Save %"];
-  const rows = state.filtered.map(r => {
-    const selPrice = r.sel === null ? "" : (state.period === "month" ? Math.round(r.sel * HOURS_PER_MONTH) : Number(r.sel).toFixed(4));
-    const bestPrice = r.cheapest === null ? "" : (state.period === "month" ? Math.round(r.cheapest * HOURS_PER_MONTH) : Number(r.cheapest).toFixed(4));
-    const save = r.save === null ? "" : r.save.toFixed(1);
-    return [r.armSkuName, r.category, r.series||"", r.vCPUs??"", r.memoryGB??"", r.tempDiskGB??"", selPrice, r.cheapestRegion?regionShort(r.cheapestRegion):"", bestPrice, save].map(v => `"${String(v).replace(/"/g,'""')}"`).join(",");
-  });
-  const csv = [headers.map(h=>`"${h}"`).join(",")].concat(rows).join("\n");
-  const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `azure-price-${state.currency.toLowerCase()}-${state.region||"all"}-${state.period}.csv`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  const sym = CURRENCY_SYMBOLS[state.currency] || state.currency;
+  const colDefs = {
+    sku: { header: "SKU", get: r => r.armSkuName },
+    vcpu: { header: "vCPU", get: r => r.vCPUs ?? "" },
+    ram: { header: "RAM_GB", get: r => r.memoryGB ?? "" },
+    disk: { header: "TempDisk_GB", get: r => r.tempDiskGB ?? "" },
+    regionPrice: { header: regionLabel + " " + periodLabel + " (" + sym + ")", get: r => r.sel === null ? "" : (state.period === "month" ? Math.round(r.sel * HOURS_PER_MONTH) : Number(r.sel).toFixed(4)) },
+    marketBest: { header: "Market Best Region", get: r => r.cheapestRegion ? regionShort(r.cheapestRegion) : "" },
+    bestPrice: { header: "Best Price " + periodLabel + " (" + sym + ")", get: r => r.cheapest === null ? "" : (state.period === "month" ? Math.round(r.cheapest * HOURS_PER_MONTH) : Number(r.cheapest).toFixed(4)) },
+    save: { header: "Save %", get: r => r.save === null ? "" : r.save.toFixed(1) },
+  };
+  // Also include category/series if sku selected
+  const headers = cols.map(c => colDefs[c].header);
+  const rows = state.filtered.map(r => cols.map(c => colDefs[c].get(r)));
+  return { headers, rows, cols };
 }
-$("exportCsv").addEventListener("click", exportCsv);
+function exportData() {
+  if (!state.filtered.length) { alert("No data to export"); return; }
+  const fmt = (document.getElementById("exportFormat")?.value || "csv").toLowerCase();
+  const { headers, rows } = getExportData();
+  const baseName = `azure-price-${state.currency.toLowerCase()}-${state.region||"all"}-${state.period}`;
+  if (fmt === "json") {
+    const jsonData = state.filtered.map(r => {
+      const obj = {};
+      const cols = getSelectedColumns();
+      const colDefs = { sku: r.armSkuName, vcpu: r.vCPUs, ram: r.memoryGB, disk: r.tempDiskGB, regionPrice: r.sel, marketBest: r.cheapestRegion, bestPrice: r.cheapest, save: r.save };
+      cols.forEach(c => obj[c] = colDefs[c]);
+      return obj;
+    });
+    const blob = new Blob([JSON.stringify({ meta: { currency: state.currency, region: state.region, period: state.period, count: state.filtered.length, generatedAt: new Date().toISOString() }, data: jsonData }, null, 2)], {type: "application/json"});
+    const url = URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=baseName+".json"; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  } else if (fmt === "xml") {
+    const cols = getSelectedColumns();
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<azurePrices currency="'+state.currency+'" region="'+(state.region||"")+'" period="'+state.period+'" count="'+state.filtered.length+'">\n';
+    state.filtered.forEach(r => {
+      xml += '  <row>\n';
+      const vals = { sku: r.armSkuName, vcpu: r.vCPUs??"", ram: r.memoryGB??"", disk: r.tempDiskGB??"", regionPrice: r.sel??"", marketBest: r.cheapestRegion||"", bestPrice: r.cheapest??"", save: r.save??"" };
+      cols.forEach(c => { xml += '    <'+c+'>'+String(vals[c]).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</'+c+'>\n'; });
+      xml += '  </row>\n';
+    });
+    xml += '</azurePrices>';
+    const blob = new Blob([xml], {type: "application/xml"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=baseName+".xml"; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  } else if (fmt === "xlsx") {
+    if (typeof XLSX === 'undefined') { alert("Excel library not loaded, try CSV instead"); return; }
+    const wsData = [headers].concat(rows);
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Prices");
+    XLSX.writeFile(wb, baseName+".xlsx");
+  } else {
+    const csv = [headers.map(h=>`"${String(h).replace(/"/g,'""')}"`).join(",")].concat(rows.map(row=>row.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(","))).join("\n");
+    const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=baseName+".csv"; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  }
+}
+// Compat: old CSV button
+const _exportCsvBtn = document.getElementById("exportCsv");
+if (_exportCsvBtn) _exportCsvBtn.addEventListener("click", () => { const f=document.getElementById("exportFormat"); if(f) f.value="csv"; exportData(); });
+const _exportBtn = document.getElementById("exportBtn");
+if (_exportBtn) _exportBtn.addEventListener("click", exportData);
+// Column picker toggle
+const _colBtn = document.getElementById("colPickerBtn");
+const _colPicker = document.getElementById("colPicker");
+if (_colBtn && _colPicker) {
+  _colBtn.addEventListener("click", () => { _colPicker.style.display = _colPicker.style.display === "none" ? "block" : "none"; });
+  _colPicker.querySelectorAll("input[data-col]").forEach(cb => cb.addEventListener("change", () => {
+    const cols = getSelectedColumns();
+    // Update table header visibility
+    const colMap = { sku:0, vcpu:1, ram:2, disk:3, regionPrice:4, marketBest:5, bestPrice:6, save:7 };
+    document.querySelectorAll("#tbl th, #tbl td").forEach((el, idx) => {
+      // Simple: re-render to respect columns
+    });
+    // Re-render table with column filter
+    render();
+  }));
+}
+// Patch render to respect column picker
+const _origRender = render;
+render = function() {
+  const cols = getSelectedColumns();
+  const colSet = new Set(cols);
+  // Hide/show headers
+  const headers = document.querySelectorAll("#tbl thead th");
+  const headerKeys = ["sku","vcpu","ram","disk","regionPrice","marketBest","bestPrice","save"];
+  headers.forEach((th, i) => { th.style.display = colSet.has(headerKeys[i]) ? "" : "none"; });
+  // Call original render then hide cells
+  _origRender();
+  // Hide cells per row
+  document.querySelectorAll("#tbl tbody tr").forEach(tr => {
+    const cells = tr.querySelectorAll("td");
+    cells.forEach((td, i) => { td.style.display = colSet.has(headerKeys[i]) ? "" : "none"; });
+  });
+};
 // Slider sync for vCPU/RAM filters
 function syncSliders() {
   const cpuNum = $("minCpu"), cpuSl = $("cpuSlider");

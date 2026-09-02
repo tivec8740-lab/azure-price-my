@@ -80,10 +80,25 @@
     <option value="month">Per month</option>
   </select>
   <label class="toggle"><input type="checkbox" id="onlySpec" checked> <span>with specs only</span></label>
-  <button type="button" id="share" class="sharebtn" title="Copy a shareable link to this exact view">🔗 Share</button>  <button type="button" id="exportCsv" class="sharebtn" title="Export filtered results to CSV" style="margin-left:6px">📥 Export CSV</button>
+  <button type="button" id="share" class="sharebtn" title="Copy a shareable link to this exact view">🔗 Share</button>
   <div class="range">
     <label>vCPU ≥ <input id="minCpu" type="number" min="0" placeholder="0" style="width:4.5em"> <input id="cpuSlider" type="range" min="0" max="128" value="0" style="width:90px;vertical-align:middle"></label>
     <label>RAM ≥ <input id="minRam" type="number" min="0" placeholder="0" style="width:4.5em"> GB <input id="ramSlider" type="range" min="0" max="1024" value="0" style="width:90px;vertical-align:middle"></label>
+  </div>
+  <div class="exportControls" style="margin-top:8px; display:flex; gap:6px; align-items:center; flex-wrap:wrap">
+    <select id="exportFormat" title="Export format"><option value="csv">CSV</option><option value="json">JSON</option><option value="xlsx">Excel</option><option value="xml">XML</option></select>
+    <button type="button" id="exportBtn" class="sharebtn" title="Export filtered results">📥 Export</button>
+    <button type="button" id="colPickerBtn" class="sharebtn" title="Choose columns">⚙️ Columns</button>
+  </div>
+  <div id="colPicker" style="display:none; margin-top:8px; padding:8px; border:1px solid #2a3347; border-radius:6px; background:#1a2332">
+    <label style="margin-right:10px"><input type="checkbox" data-col="sku" checked> SKU</label>
+    <label style="margin-right:10px"><input type="checkbox" data-col="vcpu" checked> vCPU</label>
+    <label style="margin-right:10px"><input type="checkbox" data-col="ram" checked> RAM</label>
+    <label style="margin-right:10px"><input type="checkbox" data-col="disk" checked> Temp Disk</label>
+    <label style="margin-right:10px"><input type="checkbox" data-col="regionPrice" checked> Region Price</label>
+    <label style="margin-right:10px"><input type="checkbox" data-col="marketBest" checked> Market Best</label>
+    <label style="margin-right:10px"><input type="checkbox" data-col="bestPrice" checked> Best Price</label>
+    <label style="margin-right:10px"><input type="checkbox" data-col="save" checked> Save %</label>
   </div>
 </section>
 
@@ -122,6 +137,7 @@
   <p>Not affiliated with Microsoft or Azure. Built by <a href="https://github.com/tivec8740-lab">@tivec8740-lab</a>.</p>
 </footer>
 
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
