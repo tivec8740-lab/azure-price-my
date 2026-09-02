@@ -307,9 +307,10 @@ $("region").addEventListener("change", (e) => {
 });
 $("currency").addEventListener("change", (e) => {
   state.currency = e.target.value;
+  syncUrl();
   state.rows = [];
   state.page = 0;
-  loadData().catch(showErr).then(syncUrl);
+  loadData().catch(showErr);
 });
 $("share").addEventListener("click", async () => {
   const url = shareUrl();
