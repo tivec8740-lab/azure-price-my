@@ -321,6 +321,50 @@ $("share").addEventListener("click", async () => {
   }
   setTimeout(() => ($("share").textContent = "🔗 Share"), 1500);
 });
+// CSV Export - exports currently filtered rows
+function exportCsv() {
+  if (!state.filtered.length) { alert("No data to export"); return; }
+  const sym = CURRENCY_SYMBOLS[state.currency] || state.currency;
+  const periodLabel = state.period === "month" ? "per month" : "per hour";
+  const regionLabel = state.region ? REGION_LABELS[state.region] || state.region : "Region";
+  const headers = ["SKU","Category","Series","vCPU","RAM_GB","TempDisk_GB", regionLabel + " " + periodLabel, "Market Best Region", "Best Price " + periodLabel + " (" + sym + ")", "Save %"];
+  const rows = state.filtered.map(r => {
+    const selPrice = r.sel === null ? "" : (state.period === "month" ? Math.round(r.sel * HOURS_PER_MONTH) : Number(r.sel).toFixed(4));
+    const bestPrice = r.cheapest === null ? "" : (state.period === "month" ? Math.round(r.cheapest * HOURS_PER_MONTH) : Number(r.cheapest).toFixed(4));
+    const save = r.save === null ? "" : r.save.toFixed(1);
+    return [r.armSkuName, r.category, r.series||"", r.vCPUs??"", r.memoryGB??"", r.tempDiskGB??"", selPrice, r.cheapestRegion?regionShort(r.cheapestRegion):"", bestPrice, save].map(v => `"${String(v).replace(/"/g,'""')}"`).join(",");
+  });
+  const csv = [headers.map(h=>`"${h}"`).join(",")].concat(rows).join("\n");
+  const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `azure-price-${state.currency.toLowerCase()}-${state.region||"all"}-${state.period}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+$("exportCsv").addEventListener("click", exportCsv);
+// Slider sync for vCPU/RAM filters
+function syncSliders() {
+  const cpuNum = $("minCpu"), cpuSl = $("cpuSlider");
+  const ramNum = $("minRam"), ramSl = $("ramSlider");
+  if (cpuNum && cpuSl) {
+    cpuSl.addEventListener("input", () => { cpuNum.value = cpuSl.value; state.page=0; applyFilters(); syncUrl(); });
+    cpuNum.addEventListener("input", () => { cpuSl.value = cpuNum.value || 0; });
+  }
+  if (ramNum && ramSl) {
+    ramSl.addEventListener("input", () => { ramNum.value = ramSl.value; state.page=0; applyFilters(); syncUrl(); });
+    ramNum.addEventListener("input", () => { ramSl.value = ramNum.value || 0; });
+  }
+  // Dynamically set slider max based on data
+  const maxCpu = Math.max(0, ...state.rows.map(r=>r.vCPUs||0));
+  const maxRam = Math.max(0, ...state.rows.map(r=>r.memoryGB||0));
+  if (maxCpu && cpuSl) cpuSl.max = Math.ceil(maxCpu/8)*8;
+  if (maxRam && ramSl) ramSl.max = Math.ceil(maxRam/64)*64;
+}
+
 document.querySelectorAll("th[data-sort]").forEach((th) =>
   th.addEventListener("click", () => {
     const key = th.dataset.sort;
@@ -336,4 +380,4 @@ function showErr(e) {
   $("tbody").innerHTML = `<tr><td colspan="8">⚠️ Failed to load data: ${e.message}</td></tr>`;
 }
 let dataLoaded = false;
-loadData().then(() => { dataLoaded = true; }).catch(showErr);
+loadData().then(() => { dataLoaded = true; try{syncSliders();}catch(e){} }).catch(showErr);

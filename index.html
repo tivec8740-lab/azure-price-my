@@ -80,10 +80,10 @@
     <option value="month">Per month</option>
   </select>
   <label class="toggle"><input type="checkbox" id="onlySpec" checked> <span>with specs only</span></label>
-  <button type="button" id="share" class="sharebtn" title="Copy a shareable link to this exact view">🔗 Share</button>
+  <button type="button" id="share" class="sharebtn" title="Copy a shareable link to this exact view">🔗 Share</button>  <button type="button" id="exportCsv" class="sharebtn" title="Export filtered results to CSV" style="margin-left:6px">📥 Export CSV</button>
   <div class="range">
-    <label>vCPU ≥ <input id="minCpu" type="number" min="0" placeholder="0" style="width:4.5em"></label>
-    <label>RAM ≥ <input id="minRam" type="number" min="0" placeholder="0" style="width:4.5em"> GB</label>
+    <label>vCPU ≥ <input id="minCpu" type="number" min="0" placeholder="0" style="width:4.5em"> <input id="cpuSlider" type="range" min="0" max="128" value="0" style="width:90px;vertical-align:middle"></label>
+    <label>RAM ≥ <input id="minRam" type="number" min="0" placeholder="0" style="width:4.5em"> GB <input id="ramSlider" type="range" min="0" max="1024" value="0" style="width:90px;vertical-align:middle"></label>
   </div>
 </section>
 
