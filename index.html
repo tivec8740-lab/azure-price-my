@@ -82,8 +82,8 @@
   <label class="toggle"><input type="checkbox" id="onlySpec" checked> <span>with specs only</span></label>
   <button type="button" id="share" class="sharebtn" title="Copy a shareable link to this exact view">🔗 Share</button>
   <div class="range">
-    <label>vCPU ≥ <input id="minCpu" type="number" min="0" placeholder="0" style="width:4.5em"> <input id="cpuSlider" type="range" min="0" max="128" value="0" style="width:90px;vertical-align:middle"></label>
-    <label>RAM ≥ <input id="minRam" type="number" min="0" placeholder="0" style="width:4.5em"> GB <input id="ramSlider" type="range" min="0" max="1024" value="0" style="width:90px;vertical-align:middle"></label>
+    <label>vCPU ≥ <input id="minCpu" type="number" min="0" placeholder="0" style="width:4.5em"> <input id="cpuSlider" type="range" min="0" max="64" value="0" step="1" style="width:140px;vertical-align:middle"></label>
+    <label>RAM ≥ <input id="minRam" type="number" min="0" placeholder="0" style="width:4.5em"> GB <input id="ramSlider" type="range" min="0" max="512" value="0" step="4" style="width:140px;vertical-align:middle"></label>
   </div>
   <div class="exportControls" style="margin-top:8px; display:flex; gap:6px; align-items:center; flex-wrap:wrap">
     <select id="exportFormat" title="Export format"><option value="csv">CSV</option><option value="json">JSON</option><option value="xlsx">Excel</option><option value="xml">XML</option></select>

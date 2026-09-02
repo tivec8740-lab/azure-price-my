@@ -440,8 +440,8 @@ function syncSliders() {
   // Dynamically set slider max based on data
   const maxCpu = Math.max(0, ...state.rows.map(r=>r.vCPUs||0));
   const maxRam = Math.max(0, ...state.rows.map(r=>r.memoryGB||0));
-  if (maxCpu && cpuSl) cpuSl.max = Math.ceil(maxCpu/8)*8;
-  if (maxRam && ramSl) ramSl.max = Math.ceil(maxRam/64)*64;
+  if (maxCpu && cpuSl) cpuSl.max = Math.min(64, Math.ceil(maxCpu/8)*8);
+  if (maxRam && ramSl) ramSl.max = Math.min(512, Math.ceil(maxRam/64)*64);
 }
 
 document.querySelectorAll("th[data-sort]").forEach((th) =>
